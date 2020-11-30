@@ -1,0 +1,3 @@
+Really look at cleaning up how the lambda functions are done... 
+* Pushing the pip stuff to git ain't ideal
+* Should probably get those versions at least pinned.
