@@ -1,4 +1,7 @@
 .terraform/
+<<<<<<< HEAD
 .DS_Store
 terraform.tfstate
+=======
+>>>>>>> d184c220d65c51502b5a2de8d74f55ff3a01fba1
 quick_config.sh
