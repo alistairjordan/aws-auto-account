@@ -1,2 +1,3 @@
 .terraform/
+terraform.tfstate
 quick_config.sh
