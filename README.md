@@ -20,8 +20,11 @@ The project should be essentially free in terms of running cost - the solution c
 Firstly please note this is a work in progress. Some things are slightly in the wrong place, not variablised or modularised as well as they should be.
 I hope to get this fixed soon.
 
+### System Interaction
 ![ System Interaction ](docs/images/aws-auto-account-interaction.png "System Interaction")
 
+### System Pruning
 ![ System Pruning ](docs/images/aws-auto-account-backend-pruning.png "System Pruning")
 
+### System Account Verification
 ![ System Account Verification ](docs/images/aws-auto-account-backend-verify-account.png "System Account Verification")
