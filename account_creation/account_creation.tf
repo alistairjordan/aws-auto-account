@@ -1,17 +1,13 @@
-resource "aws_sns_topic" "account_creation" {
-  name = "account_creation"
-}
-
-resource "aws_lambda_permission" "outbound_sns" {
+resource "aws_lambda_permission" "account_creation_sns" {
   statement_id  = "AllowExecutionFromSNS"
   action        = "lambda:InvokeFunction"
   function_name = replace(aws_lambda_function.account_creation.function_name, ":$LATEST", "")
   principal     = "sns.amazonaws.com"
-  source_arn    = aws_sns_topic.account_creation.arn
+  source_arn    = var.sns_account_creation
 }
 
 resource "aws_sns_topic_subscription" "account_creation_lambda" {
-  topic_arn = aws_sns_topic.account_creation.arn
+  topic_arn = var.sns_account_creation
   protocol  = "lambda"
   endpoint  = aws_lambda_function.account_creation.arn
 }
@@ -27,16 +23,15 @@ data "external" "account_creation_md5" {
 # Zip the Lamda function on the fly
 data "archive_file" "source" {
   type        = "zip"
-  source_dir  = var.AccountCreationLambdaSource
-  output_path = "${var.AccountCreationLambdaPrefix}${data.external.account_creation_md5.result.md5}.zip"
+  source_dir  = "${path.module}/${var.AccountCreationLambdaSource}"
+  output_path = "${var.temp_directory}/${var.AccountCreationLambdaPrefix}${data.external.account_creation_md5.result.md5}.zip"
   depends_on = [ data.external.account_creation_md5 ]
 }
 
 resource "aws_s3_bucket_object" "file_upload" {
-  bucket = aws_s3_bucket.lambda_bucket.id
+  bucket = var.lambda_s3_bucket
   key    = "${var.AccountCreationLambdaPrefix}${data.external.account_creation_md5.result.md5}.zip"
-  source = "${var.AccountCreationLambdaPrefix}${data.external.account_creation_md5.result.md5}.zip"
-  depends_on = [ aws_s3_bucket.lambda_bucket]
+  source = "${var.temp_directory}/${var.AccountCreationLambdaPrefix}${data.external.account_creation_md5.result.md5}.zip"
   etag = filemd5(data.archive_file.source.output_path)
 }
 
@@ -44,7 +39,7 @@ resource "aws_lambda_function" "account_creation" {
    function_name = "AccountCreation"
 
    # The bucket name as created earlier with "aws s3api create-bucket"
-   s3_bucket = aws_s3_bucket.lambda_bucket.id
+   s3_bucket = var.lambda_s3_bucket
    s3_key    = "${var.AccountCreationLambdaPrefix}${data.external.account_creation_md5.result.md5}.zip"
 
    # "main" is the filename within the zip file (main.js) and "handler"

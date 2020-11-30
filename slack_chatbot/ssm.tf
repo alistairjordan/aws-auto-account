@@ -23,7 +23,6 @@ resource "aws_ssm_parameter" "slack_outbound_sns" {
   type  = "String"
   value = var.sns_outbound
   overwrite = false
-  force_destroy = true
   lifecycle {
         ignore_changes = [ value ]
     }
