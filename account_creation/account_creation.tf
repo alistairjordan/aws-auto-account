@@ -52,6 +52,10 @@ resource "aws_lambda_function" "account_creation" {
    depends_on = [ aws_s3_bucket_object.file_upload ]
 }
 
+resource "aws_cloudwatch_log_group" "logs_account_creation" {
+  name = "/aws/lambda/AccountCreation"
+}
+
  # IAM role which dictates what other AWS services the Lambda function
  # may access.
 resource "aws_iam_role" "account_creation_lambda_role" {
@@ -73,4 +77,74 @@ resource "aws_iam_role" "account_creation_lambda_role" {
 }
 EOF
 
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_exec_policy_attachment_outbound" {
+  role       = aws_iam_role.account_creation_lambda_role.name
+  policy_arn = aws_iam_policy.account_creation_lambda_policy.arn
+}
+
+resource "aws_iam_policy" "account_creation_lambda_policy" {
+  name        = "SlackIntegrationLambdaInbound"
+  path        = "/"
+  description = "My test policy"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "sns:Publish"
+      ],
+      "Effect": "Allow",
+      "Resource": "${var.sns_inbound}"
+    },
+    {
+      "Action": [
+        "sns:Publish"
+      ],
+      "Effect": "Allow",
+      "Resource": "${var.sns_outbound}"
+    },
+    {
+      "Action": [
+        "sns:Publish"
+      ],
+      "Effect": "Allow",
+      "Resource": "${var.sns_account_create}"
+    },
+    {
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ],
+      "Resource": "arn:aws:logs:*:*:*",
+      "Effect": "Allow"
+    },
+    {
+      "Action": [
+        "ssm:GetParameter*"
+      ],
+      "Resource": "${aws_ssm_parameter.slack_signing_secret.arn}",
+      "Effect": "Allow"
+    },
+    {
+      "Action": [
+        "ssm:GetParameter*"
+      ],
+      "Resource": "${aws_ssm_parameter.slack_outbound_sns.arn}",
+      "Effect": "Allow"
+    },
+    {
+      "Action": [
+        "ssm:GetParameter*"
+      ],
+      "Resource": "${aws_ssm_parameter.account_create_sns.arn}",
+      "Effect": "Allow"
+    }
+  ]
+}
+EOF
 }
