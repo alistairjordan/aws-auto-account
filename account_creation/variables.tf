@@ -29,6 +29,10 @@ variable "email_domain_ssm" {
     type = string
 }
 
+variable "backend_db_ssm" {
+    type = string
+}
+
 variable "backend_db" {
     type = string
 }

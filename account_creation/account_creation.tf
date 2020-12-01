@@ -113,7 +113,7 @@ resource "aws_iam_policy" "account_creation_lambda_policy" {
     },
     {
       "Action": [
-        "organizations:CreateAccount"
+        "organizations:*"
       ],
       "Resource": "*",
       "Effect": "Allow"

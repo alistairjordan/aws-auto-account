@@ -47,9 +47,10 @@ def lambda_handler(event, context):
         ]
         )
     print(response)
-    dynamodb.put_item(
+    db.put_item(
     TableName=backend_db, 
     Item={
+        'User':{'S': 'TESTING'},
         'name':{'S':account_name},
         'email':{'S':email},
         'password':{'S':email},
