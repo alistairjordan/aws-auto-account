@@ -48,6 +48,8 @@ resource "aws_lambda_function" "account_creation" {
    handler = "lambda_function.lambda_handler"
    runtime = "python3.8"
 
+   timeout = 64
+
    role = aws_iam_role.account_creation_lambda_role.arn
    depends_on = [ aws_s3_bucket_object.file_upload ]
 }
@@ -111,9 +113,36 @@ resource "aws_iam_policy" "account_creation_lambda_policy" {
     },
     {
       "Action": [
+        "organizations:CreateAccount"
+      ],
+      "Resource": "*",
+      "Effect": "Allow"
+    },
+    {
+      "Action": [
         "ssm:GetParameter*"
       ],
       "Resource": "${var.email_domain_ssm}",
+      "Effect": "Allow"
+    },
+    {
+      "Action": [
+        "ssm:GetParameter*"
+      ],
+      "Resource": "${var.backend_db_ssm}",
+      "Effect": "Allow"
+    },
+    {
+      "Action": [
+        "dynamodb:BatchGetItem",
+				"dynamodb:GetItem",
+				"dynamodb:Query",
+				"dynamodb:Scan",
+				"dynamodb:BatchWriteItem",
+				"dynamodb:PutItem",
+				"dynamodb:UpdateItem"
+      ],
+      "Resource": "${var.backend_db}",
       "Effect": "Allow"
     }
   ]

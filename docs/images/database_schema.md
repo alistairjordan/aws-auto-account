@@ -7,5 +7,6 @@ TODO
 * Deletion Date
 * Account Email
 * Account Password
+* Account Name
 * Account Number
 * Status

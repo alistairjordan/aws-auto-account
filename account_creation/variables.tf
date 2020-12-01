@@ -28,3 +28,7 @@ variable "AccountCreationLambdaPrefix" {
 variable "email_domain_ssm" {
     type = string
 }
+
+variable "backend_db" {
+    type = string
+}
