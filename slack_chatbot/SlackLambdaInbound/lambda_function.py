@@ -5,6 +5,8 @@ import jsonpickle
 import hmac
 import hashlib
 import time
+import datetime
+import dateparser
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -28,29 +30,45 @@ def verify_token(token, timestamp, signature, body, secret):
     else:
         return False
 
-def send_message_sns(text,sns):
+def send_message_sns(text,sns_topic):
     response = sns.publish(
-    TopicArn=slack_outbound_sns,    
+    TopicArn=sns_topic,    
     Message=text,    
     )
+    
+def generate_create_request(data, user):
+    #Generate the json request going to the create user SNS Topic
+    time = int((datetime.datetime.now()-dateparser.parse("".join(data))).total_seconds())
+    json_obj = {
+        'time': time,
+        'user': user
+    }
+    return jsonpickle.encode(json_obj)
     
 def help(data):
     text = "Hi there, I don't understand what you want"
     send_message_sns(text,slack_outbound_sns)
 
-def create(data):
+def create(data, user):
     text = "I'm going to try and create this for you"
-    send_message(text,slack_outbound_sns)
-    send_message(data,account_create_sns)
+    send_message_sns(text,slack_outbound_sns)
+    send_message_sns(
+        generate_create_request(data, user),
+        account_create_sns)
+
+def reply(data):
+    send_message_sns("".join(data),slack_outbound_sns)
     
-def process_command(data):
+def process_command(data, user):
     data2 = data.split()
     command = data2[1]
     content = data2[2:]
     if data2[1] == "help":
         help(content)
     elif data2[1] == "create":
-        create(content)
+        create(content, user)
+    elif data2[1] == "reply":
+        reply(content)
     else:
         help(content)
     
@@ -65,8 +83,10 @@ def lambda_handler(event, context):
     if not verify_token(body["token"],slack_time_stamp,slack_signature,event["body"],slack_signing_secret):
         raise Exception('Not Auth\'d')
     if body["event"]["type"] == "app_mention":
+        print(body)
         data = body["event"]["text"]
-        process_command(data)
+        user = body["event"]["user"]
+        process_command(data, user)
     print(data)
     return event
     

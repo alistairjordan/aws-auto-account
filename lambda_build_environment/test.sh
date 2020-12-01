@@ -1,0 +1,1 @@
+docker run -it --mount type=bind,source="../slack_chatbot/SlackLambdaInbound",target=/app awspy3.8:latest bash

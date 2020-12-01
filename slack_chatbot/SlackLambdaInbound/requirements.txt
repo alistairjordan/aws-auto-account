@@ -1,1 +1,3 @@
 jsonpickle
+dateparser
+regex==2019.11.1

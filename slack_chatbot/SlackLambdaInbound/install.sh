@@ -1,1 +1,1 @@
-pip3 install --target . -r requirements.txt
+pip3.8 install --target . -r requirements.txt
