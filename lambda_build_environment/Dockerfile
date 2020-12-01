@@ -14,3 +14,5 @@ RUN amazon-linux-extras enable python3.8 && \
     python3.8 \ 
     python38-devel
 
+WORKDIR /app
+ENTRYPOINT ["/bin/bash", "-c", "./install.sh"]

@@ -15,7 +15,7 @@ resource "aws_sns_topic_subscription" "account_creation_lambda" {
 # Check for any code changes
 data "external" "account_creation_md5" {
   program = ["bash", "-c",<<EOF
-  echo "{\"md5\":\"$(tar -cf - ${var.AccountCreationLambdaSource} | md5sum | awk '{print $1}')\"}"
+  echo "{\"md5\":\"$(tar -cf - ${path.module}/${var.AccountCreationLambdaSource} | md5sum | awk '{print $1}')\"}"
   EOF 
   ]
 }
@@ -45,7 +45,7 @@ resource "aws_lambda_function" "account_creation" {
    # "main" is the filename within the zip file (main.js) and "handler"
    # is the name of the property under which the handler function was
    # exported in that file.
-   handler = "main.handler"
+   handler = "lambda_function.lambda_handler"
    runtime = "python3.8"
 
    role = aws_iam_role.account_creation_lambda_role.arn
@@ -85,7 +85,7 @@ resource "aws_iam_role_policy_attachment" "lambda_exec_policy_attachment_outboun
 }
 
 resource "aws_iam_policy" "account_creation_lambda_policy" {
-  name        = "SlackIntegrationLambdaInbound"
+  name        = "AccountCreation"
   path        = "/"
   description = "My test policy"
 
@@ -98,21 +98,7 @@ resource "aws_iam_policy" "account_creation_lambda_policy" {
         "sns:Publish"
       ],
       "Effect": "Allow",
-      "Resource": "${var.sns_inbound}"
-    },
-    {
-      "Action": [
-        "sns:Publish"
-      ],
-      "Effect": "Allow",
-      "Resource": "${var.sns_outbound}"
-    },
-    {
-      "Action": [
-        "sns:Publish"
-      ],
-      "Effect": "Allow",
-      "Resource": "${var.sns_account_create}"
+      "Resource": "${var.sns_slack_outbound}"
     },
     {
       "Action": [
@@ -121,27 +107,6 @@ resource "aws_iam_policy" "account_creation_lambda_policy" {
         "logs:PutLogEvents"
       ],
       "Resource": "arn:aws:logs:*:*:*",
-      "Effect": "Allow"
-    },
-    {
-      "Action": [
-        "ssm:GetParameter*"
-      ],
-      "Resource": "${aws_ssm_parameter.slack_signing_secret.arn}",
-      "Effect": "Allow"
-    },
-    {
-      "Action": [
-        "ssm:GetParameter*"
-      ],
-      "Resource": "${aws_ssm_parameter.slack_outbound_sns.arn}",
-      "Effect": "Allow"
-    },
-    {
-      "Action": [
-        "ssm:GetParameter*"
-      ],
-      "Resource": "${aws_ssm_parameter.account_create_sns.arn}",
       "Effect": "Allow"
     }
   ]
