@@ -108,6 +108,13 @@ resource "aws_iam_policy" "account_creation_lambda_policy" {
       ],
       "Resource": "arn:aws:logs:*:*:*",
       "Effect": "Allow"
+    },
+    {
+      "Action": [
+        "ssm:GetParameter*"
+      ],
+      "Resource": "${var.email_domain_ssm}",
+      "Effect": "Allow"
     }
   ]
 }

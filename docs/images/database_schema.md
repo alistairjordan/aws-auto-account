@@ -8,3 +8,4 @@ TODO
 * Account Email
 * Account Password
 * Account Number
+* Status

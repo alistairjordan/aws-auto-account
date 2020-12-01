@@ -24,3 +24,7 @@ variable "AccountCreationLambdaPrefix" {
     type = string
     default = "AccountCreationLambda"
 }
+
+variable "email_domain_ssm" {
+    type = string
+}
