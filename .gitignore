@@ -2,4 +2,5 @@
 .DS_Store
 terraform.tfstate
 terraform.tfstate*
+terraform.tfstate.backup
 quick_config.sh
