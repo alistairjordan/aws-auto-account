@@ -1,4 +1,4 @@
 module "email_validation" {
     source = "./email_validation"
-    domain_name = var.domain_name
+    email_domain = var.email_domain
 }
