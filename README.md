@@ -7,6 +7,24 @@ Please see TODO.md for things which are beyond broken currently.
 
 This project is aimed to allow deployment of AWS accounts though a Slack chatbot
 
+## Installation
+
+** WIP **
+Note, this won't currently work properly.
+
+Email validation will require an external domain to work with.
+Find one to enter into the config.tfvars which you have control over.
+
+```
+mv CHANGEME.config.tfvars config.tfvars
+```
+
+Update config.tfvars as appropriate
+
+```
+terragrunt apply
+```
+
 ## Project aims
 
 Create accounts on demand through a slack account. Each account should be able to have a set expiry date. 
