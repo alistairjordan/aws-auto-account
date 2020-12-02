@@ -53,7 +53,7 @@ def lambda_handler(event, context):
         'User':{'S': 'TESTING'},
         'name':{'S':account_name},
         'email':{'S':email},
-        'password':{'S':email},
+        'password':{'S':password},
         #'dad':{'N':'value2'}
     })
     print("TEST")
