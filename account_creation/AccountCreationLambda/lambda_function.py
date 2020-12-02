@@ -3,6 +3,7 @@ import logging
 import jsonpickle
 import boto3
 import random
+import datetime
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -30,11 +31,19 @@ def lambda_handler(event, context):
     logger.info('## ENVIRONMENT VARIABLES\r' + jsonpickle.encode(dict(**os.environ)))
     logger.info('## EVENT\r' + jsonpickle.encode(event))
     logger.info('## CONTEXT\r' + jsonpickle.encode(context))
+    
+    inbound_message = jsonpickle.decode(event["Records"][0]["Sns"]["Message"])
+    logger.info('## Inbound message\r' + str(inbound_message))
     account_name = password_generator()
     email = account_name + "@" + email_domain
     password = password_generator()
-    print("Creating account " + account_name + " email " + email)
-
+    requestor = inbound_message["user"]
+    time_delta = inbound_message["time"]
+    created = datetime.datetime.now().timestamp()
+    expires = created + time_delta
+    
+    logger.info('## Create account \nuser: '+ requestor+'\ntime_delta: '+str(time_delta)+'\nAccount Name: '+account_name+'\nEmail: '+email)
+    logger.info('## Expiry time '+ str(expires) +' and in human readable is..'+ str(datetime.datetime.fromtimestamp(expires)))
     response = org.create_account(
         Email=email,
         AccountName=account_name,
@@ -47,13 +56,24 @@ def lambda_handler(event, context):
         ]
         )
     print(response)
+### Required Data
+# * Requesting User -
+# * Creation Date
+# * Deletion Date
+# * Account Email -
+# * Account Password -
+# * Account Name - 
+# * Account Number -
+# * Status
+
     db.put_item(
     TableName=backend_db, 
     Item={
-        'User':{'S': 'TESTING'},
-        'name':{'S':account_name},
-        'email':{'S':email},
-        'password':{'S':password},
-        #'dad':{'N':'value2'}
+        'User':{'S': requestor},
+        'Name':{'S':account_name},
+        'Email':{'S':email},
+        'Password':{'S':password},
+        'Number':{'N':'0'},
+        'Status':{'S':response["CreateAccountStatus"]["State"]}
     })
     print("TEST")
